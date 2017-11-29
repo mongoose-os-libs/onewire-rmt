@@ -348,8 +348,8 @@ struct mgos_rmt_onewire {
 };
 
 struct mgos_rmt_onewire* onewire_rmt_create(int pin,int rmt_rx,int rmt_tx) {
-    int rx = rmt_rx //mgos_sys_config_get_onewire_rmt_rx_channel();
-    int tx = rmt_tx //mgos_sys_config_get_onewire_rmt_tx_channel();
+    int rx = rmt_rx; //mgos_sys_config_get_onewire_rmt_rx_channel();
+    int tx = rmt_tx; //mgos_sys_config_get_onewire_rmt_tx_channel();
     if (-1 == rx || -1 == tx) {
         LOG(LL_WARN, ("onewire_rmt could not start - rx and/or tx channel not set."));
         return NULL;
