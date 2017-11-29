@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-    OnewireRmt* mgos_onewire_rmt_create(int pin);
+    OnewireRmt* mgos_onewire_rmt_create(int pin,int rmt_rx,int rmt_tx);
     void mgos_onewire_rmt_close(OnewireRmt *ow);
 
     bool mgos_onewire_rmt_reset(OnewireRmt *ow);
