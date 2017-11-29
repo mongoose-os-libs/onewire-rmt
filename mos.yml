@@ -1,4 +1,4 @@
-author: mongoose-os
+author: nliviu
 description: Implements Mongoose rmt onewire driver
 type: lib
 version: 1.0
