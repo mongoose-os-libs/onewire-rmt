@@ -1,9 +1,9 @@
 #include "OnewireRmt.h"
 #include "onewire_rmt.h"
 
-OnewireRmt::OnewireRmt(uint8_t pin)
+OnewireRmt::OnewireRmt(uint8_t pin,uint8_t rmt_rx,uint8_t rmt_tx)
 {
-    _ow = onewire_rmt_create(pin);
+    _ow = onewire_rmt_create(pin,rmt_rx,rmt_tx);
 }
 
 OnewireRmt::~OnewireRmt()

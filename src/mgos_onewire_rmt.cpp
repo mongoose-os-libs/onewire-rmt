@@ -1,9 +1,9 @@
 #include "OnewireRmt.h"
 #include "mgos_onewire_rmt.h"
 
-OnewireRmt* mgos_onewire_rmt_create(int pin)
+OnewireRmt* mgos_onewire_rmt_create(int pin,int rmt_rx,int rmt_tx)
 {
-    return new OnewireRmt(pin);
+    return new OnewireRmt(pin,rmt_rx,rmt_tx);
 }
 
 void mgos_onewire_rmt_close(OnewireRmt *ow)
