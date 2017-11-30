@@ -11,7 +11,7 @@ struct mgos_rmt_onewire;
 class OnewireRmt
 {
 public:
-    OnewireRmt(uint8_t pin);
+    OnewireRmt(uint8_t pin,uint8_t rmt_rx,uint8_t rmt_tx);
     ~OnewireRmt();
 
     // Perform a 1-Wire reset cycle. Returns 1 if a device responds
