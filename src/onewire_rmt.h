@@ -7,7 +7,7 @@ extern "C"
 {
 #endif
 
-    struct mgos_rmt_onewire* onewire_rmt_create(int pin);
+    struct mgos_rmt_onewire* onewire_rmt_create(int pin, int rmt_rx, int rmt_tx);
     void onewire_rmt_close(struct mgos_rmt_onewire *ow);
 
     bool onewire_rmt_reset(struct mgos_rmt_onewire *ow);
