@@ -11,9 +11,6 @@ includes:
   - include
 
 config_schema:
- - ["onewire_rmt", o, {title: "onewire_rmt settings"}]
- - ["onewire_rmt.rx_channel", i, -1, {title: "rx channel"}]
- - ["onewire_rmt.tx_channel", i, -1, {title: "tx channel"}]
 
 tags:
   - c
