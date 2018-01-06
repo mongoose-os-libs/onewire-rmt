@@ -103,7 +103,8 @@ static struct {
 // default power mode for generic write operations
 static const uint8_t owDefaultPower = 0;
 
-static bool onewire_rmt_init(int gpio_num, int tx_channel, int rx_channel) {
+static bool onewire_rmt_init(int gpio_num, int tx_channel, int rx_channel)
+{
     ow_rmt.tx = tx_channel;
     ow_rmt.rx = rx_channel;
     // acquire an RMT module for TX and RX each
@@ -151,7 +152,8 @@ static bool onewire_rmt_init(int gpio_num, int tx_channel, int rx_channel) {
 
 // flush any pending/spurious traces from the RX channel
 
-static void onewire_flush_rmt_rx_buf(void) {
+static void onewire_flush_rmt_rx_buf(void)
+{
     void *p;
     size_t s;
 
@@ -162,7 +164,8 @@ static void onewire_flush_rmt_rx_buf(void) {
 
 // check rmt TX&RX channel assignment and eventually attach them to the requested pin
 
-static bool onewire_rmt_attach_pin(int gpio_num) {
+static bool onewire_rmt_attach_pin(int gpio_num)
+{
     if (ow_rmt.tx < 0 || ow_rmt.rx < 0)
         return false;
 
@@ -191,7 +194,8 @@ static bool onewire_rmt_attach_pin(int gpio_num) {
     return true;
 }
 
-static rmt_item32_t onewire_encode_write_slot(uint8_t val) {
+static rmt_item32_t onewire_encode_write_slot(uint8_t val)
+{
     rmt_item32_t item;
 
     item.level0 = 0;
@@ -209,7 +213,8 @@ static rmt_item32_t onewire_encode_write_slot(uint8_t val) {
     return item;
 }
 
-static bool onewire_write_bits(uint8_t gpio_num, uint8_t data, uint8_t num, uint8_t power) {
+static bool onewire_write_bits(uint8_t gpio_num, uint8_t data, uint8_t num, uint8_t power)
+{
     rmt_item32_t tx_items[num + 1];
 
     if (num > 8) {
@@ -244,7 +249,8 @@ static bool onewire_write_bits(uint8_t gpio_num, uint8_t data, uint8_t num, uint
     }
 }
 
-static rmt_item32_t onewire_encode_read_slot(void) {
+static rmt_item32_t onewire_encode_read_slot(void)
+{
     rmt_item32_t item;
 
     // construct pattern for a single read time slot
@@ -256,7 +262,8 @@ static rmt_item32_t onewire_encode_read_slot(void) {
     return item;
 }
 
-static bool onewire_read_bits(uint8_t gpio_num, uint8_t *data, uint8_t num) {
+static bool onewire_read_bits(uint8_t gpio_num, uint8_t *data, uint8_t num)
+{
     rmt_item32_t tx_items[num + 1];
     uint8_t read_data = 0;
     int res = true;
@@ -345,9 +352,12 @@ struct mgos_rmt_onewire {
     uint8_t *res_rom;
     //struct onewire_search_state sst;
     platform_onewire_bus_t sst;
+    int rmt_rx;
+    int rmt_tx;
 };
 
-struct mgos_rmt_onewire* onewire_rmt_create(int pin,int rmt_rx,int rmt_tx) {
+struct mgos_rmt_onewire* onewire_rmt_create(int pin, int rmt_rx, int rmt_tx)
+{
     int rx = rmt_rx; //mgos_sys_config_get_onewire_rmt_rx_channel();
     int tx = rmt_tx; //mgos_sys_config_get_onewire_rmt_tx_channel();
     if (-1 == rx || -1 == tx) {
@@ -361,16 +371,22 @@ struct mgos_rmt_onewire* onewire_rmt_create(int pin,int rmt_rx,int rmt_tx) {
     }
     struct mgos_rmt_onewire* ow = (struct mgos_rmt_onewire*) calloc(1, sizeof (struct mgos_rmt_onewire));
     ow->pin = pin;
+    ow->rmt_rx = rmt_rx;
+    ow->rmt_tx = rmt_tx;
     return ow;
 }
 
-void onewire_rmt_close(struct mgos_rmt_onewire *ow) {
+void onewire_rmt_close(struct mgos_rmt_onewire *ow)
+{
     if (NULL != ow) {
+        rmt_driver_uninstall(ow->rmt_tx);
+        rmt_driver_uninstall(ow->rmt_rx);
         free((void*) ow);
     }
 }
 
-bool onewire_rmt_reset(struct mgos_rmt_onewire *ow) {
+bool onewire_rmt_reset(struct mgos_rmt_onewire *ow)
+{
     (void) ow;
     rmt_item32_t tx_items[1];
     bool _presence = false;
@@ -458,7 +474,8 @@ static const uint8_t crc_table[] = {
     53
 };
 
-uint8_t onewire_rmt_crc8(const uint8_t *rom, int len) {
+uint8_t onewire_rmt_crc8(const uint8_t *rom, int len)
+{
     uint8_t res = 0x00;
     while (len-- > 0) {
         res = crc_table[res ^ *rom++];
@@ -472,7 +489,8 @@ uint8_t onewire_rmt_crc8(const uint8_t *rom, int len) {
  * Note if no devices of the desired family are currently
  * on the 1-Wire, then another type will be found.
  */
-void onewire_rmt_target_setup(struct mgos_rmt_onewire *ow, const uint8_t family_code) {
+void onewire_rmt_target_setup(struct mgos_rmt_onewire *ow, const uint8_t family_code)
+{
     // set the search state to find SearchFamily type devices
     ow->sst.ROM_NO[0] = family_code;
     uint8_t i;
@@ -501,7 +519,8 @@ void onewire_rmt_target_setup(struct mgos_rmt_onewire *ow, const uint8_t family_
 //        false : device not found, end of search
 //
 
-bool onewire_rmt_next(struct mgos_rmt_onewire *ow, uint8_t *rom, int mode) {
+bool onewire_rmt_next(struct mgos_rmt_onewire *ow, uint8_t *rom, int mode)
+{
     (void) mode;
     uint8_t id_bit_number;
     uint8_t last_zero, rom_byte_number, search_result;
@@ -620,7 +639,8 @@ bool onewire_rmt_next(struct mgos_rmt_onewire *ow, uint8_t *rom, int mode) {
     return search_result;
 }
 
-void onewire_rmt_select(struct mgos_rmt_onewire *ow, const uint8_t *rom) {
+void onewire_rmt_select(struct mgos_rmt_onewire *ow, const uint8_t *rom)
+{
     //onewire_write(ow, 0x55);
     onewire_write_bits(ow->pin, 0x55, 8, owDefaultPower);
     for (int i = 0; i < 8; i++) {
@@ -629,16 +649,19 @@ void onewire_rmt_select(struct mgos_rmt_onewire *ow, const uint8_t *rom) {
     }
 }
 
-void onewire_rmt_skip(struct mgos_rmt_onewire *ow) {
+void onewire_rmt_skip(struct mgos_rmt_onewire *ow)
+{
     //onewire_write(ow, 0xCC);
     onewire_write_bits(ow->pin, 0xCC, 8, owDefaultPower);
 }
 
-void onewire_rmt_search_clean(struct mgos_rmt_onewire *ow) {
+void onewire_rmt_search_clean(struct mgos_rmt_onewire *ow)
+{
     memset(&ow->sst, 0, sizeof (ow->sst));
 }
 
-bool onewire_rmt_read_bit(struct mgos_rmt_onewire *ow) {
+bool onewire_rmt_read_bit(struct mgos_rmt_onewire *ow)
+{
     uint8_t bit = 0;
     if (onewire_read_bits(ow->pin, &bit, 1)) {
         return bit & 0x01;
@@ -646,7 +669,8 @@ bool onewire_rmt_read_bit(struct mgos_rmt_onewire *ow) {
     return false;
 }
 
-uint8_t onewire_rmt_read(struct mgos_rmt_onewire *ow) {
+uint8_t onewire_rmt_read(struct mgos_rmt_onewire *ow)
+{
     uint8_t res = 0;
     if (onewire_read_bits(ow->pin, &res, 8) != true) {
         return 0;
@@ -654,7 +678,8 @@ uint8_t onewire_rmt_read(struct mgos_rmt_onewire *ow) {
     return res;
 }
 
-void onewire_rmt_read_bytes(struct mgos_rmt_onewire *ow, uint8_t *buf, int len) {
+void onewire_rmt_read_bytes(struct mgos_rmt_onewire *ow, uint8_t *buf, int len)
+{
 
     for (uint16_t i = 0; i < len; i++) {
         if (onewire_read_bits(ow->pin, buf, 8) != true) {
@@ -664,16 +689,19 @@ void onewire_rmt_read_bytes(struct mgos_rmt_onewire *ow, uint8_t *buf, int len) 
     }
 }
 
-void onewire_rmt_write_bit(struct mgos_rmt_onewire *ow, int bit) {
+void onewire_rmt_write_bit(struct mgos_rmt_onewire *ow, int bit)
+{
     uint8_t data = 0x01 & bit;
     onewire_write_bits(ow->pin, data, 1, owDefaultPower);
 }
 
-void onewire_rmt_write(struct mgos_rmt_onewire *ow, const uint8_t data) {
+void onewire_rmt_write(struct mgos_rmt_onewire *ow, const uint8_t data)
+{
     onewire_write_bits(ow->pin, data, 8, owDefaultPower);
 }
 
-void onewire_rmt_write_bytes(struct mgos_rmt_onewire *ow, const uint8_t *buf, int len) {
+void onewire_rmt_write_bytes(struct mgos_rmt_onewire *ow, const uint8_t *buf, int len)
+{
     for (uint16_t i = 0; i < len; i++) {
         if (onewire_write_bits(ow->pin, buf[i], 8, owDefaultPower) != true) {
             return; //PLATFORM_ERR;
